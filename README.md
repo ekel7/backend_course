@@ -1,2 +1,2 @@
-# curso_backend_coderhouse
-Curso de backend de coder :)
+# Backend Course  
+Backend course with multiple challenges. The course runs for six months :)
