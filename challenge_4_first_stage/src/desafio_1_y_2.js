@@ -18,7 +18,7 @@ export class ProductManager {
     //este es el contador
     this.idCounter = 0;
 
-    this.path = "./";
+    this.path = "./src/data/";
   }
   addProduct = (newProduct) => {
     console.log("Hola, agregando el producto " + newProduct.title);
@@ -59,6 +59,11 @@ export class ProductManager {
   };
 
   getProducts = async (limit) => {
+    const ruta = `${this.path}products.json`
+    fs.readdirSync(`${this.path}`).forEach(file => {
+      console.log(file);
+    });
+    console.log(ruta);
     console.log(
       "hola, aca esta la lista completa de productos(esta vez leida del archivo productos.json):"
     );
