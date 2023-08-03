@@ -12,22 +12,26 @@ import fs from 'fs';
 
 export class ProductManager {
   constructor() {
-    //esta es la lista de productos
-    this.products = [];
-
-    //este es el contador
-    this.idCounter = 0;
-
     this.path = "./src/data/";
   }
-  addProduct = (newProduct) => {
+  addProduct = async (newProduct) => {
     console.log("Hola, agregando el producto " + newProduct.title);
     // Agregando id
+    let currentProductsList = await this.getProducts();
+     
+    let lastIDGenerated = currentProductsList[currentProductsList.length - 1].id;
+
     let productWithId = {
       ...newProduct,
-      id: this.idCounter,
+      id: lastIDGenerated ? lastIDGenerated + 1 : 1,
     };
-    this.idCounter++;
+    
+
+    //agregando status predeterminado
+
+    if(!newProduct.status){
+      productWithId.status = true;
+    }
 
     //Validacion de campos obligatorios
     let poseeCamposObligatorios = this.validateObject(newProduct);
@@ -36,7 +40,7 @@ export class ProductManager {
       throw new Error("El producto no posee todos los campos obligatorios");
     }
     //Validación de propiedad code
-    let sameCodeFound = this.products.find(
+    let sameCodeFound = currentProductsList.find(
       (element) => element.code === newProduct.code
     );
     console.log({
@@ -50,11 +54,15 @@ export class ProductManager {
       );
       return "Un producto con este codigo ya existe";
     } else {
-      this.products.push(productWithId);
-      fs.writeFileSync(
+      let existentProducts = await this.getProducts();
+      console.log(existentProducts);
+      existentProducts.push(productWithId);
+      await fs.promises.writeFile(
         `${this.path}products.json`,
-        JSON.stringify(this.products)
+        JSON.stringify(existentProducts)
       );
+
+      return `Producto ${productWithId.title} agregado exitosamente!`
     }
   };
 
@@ -110,10 +118,8 @@ export class ProductManager {
       object.hasOwnProperty("title") &&
       object.hasOwnProperty("description") &&
       object.hasOwnProperty("price") &&
-      object.hasOwnProperty("thumbnails") &&
       object.hasOwnProperty("code") &&
       object.hasOwnProperty("stock") &&
-      object.hasOwnProperty("status") && 
       object.hasOwnProperty("category")
     ) {
       return true;
@@ -122,12 +128,12 @@ export class ProductManager {
     }
   }
 
-  updateProduct(id, updatedObject) {
+  async updateProduct(id, updatedObject) {
     console.log(`Actualizando producto con el ID: ${id}...`);
     let foundProductFlag = false;
     let parsedContent;
     if (fs.existsSync(`${this.path}products.json`)) {
-      let rawContent = fs.readFileSync(`${this.path}products.json`, "utf8");
+      let rawContent = fs.promises.readFile(`${this.path}products.json`, "utf8");
       parsedContent = JSON.parse(rawContent);
     } else {
       return "El archivo no existe aún./This file does not exist just yet.";
@@ -147,7 +153,7 @@ export class ProductManager {
 
 
     if (foundProductFlag) {
-      fs.writeFileSync(
+      await fs.promises.writeFile(
         `${this.path}products.json`,
         JSON.stringify(parsedContent)
       );

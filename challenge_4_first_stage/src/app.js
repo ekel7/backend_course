@@ -4,6 +4,7 @@ import ProductsRouter from './routes/products.routes.js';
 
 
 const server = express();
+server.use(express.json());
 const PMInstance = new ProductManager;
 server.use('/products', ProductsRouter);
 

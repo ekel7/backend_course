@@ -13,6 +13,15 @@ ProductsRouter.get('/:pid', async (req, res) => {
     res.json(await PMInstance.getProductById(req.params.pid))
 });
 
+ProductsRouter.post('/', async (req, res) => {
+    console.log(req.body)
+    res.json(await PMInstance.addProduct(req.body.product));
+})
+
+ProductsRouter.put('/:pid', async (req, res) => {
+    res.json(await PMInstance.updateProduct(req.body.product));
+})
+
 ProductsRouter.post
 
 
